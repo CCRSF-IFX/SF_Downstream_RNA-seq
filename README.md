@@ -21,7 +21,7 @@ Clone the Repository: Clone the new repository to your local machine, choosing t
 
 ### Step 2: Configure workflow
 
-A) #### Have input RawCountFile_rsemgenes.txt available in test folder.  
+1) #### Have input RawCountFile_rsemgenes.txt available in test folder.  
 -Example of input RawCountFile_rsemgenes.txt
 | gene_id                    | Sample1 | Sample2 | Sample3 | Sample4 | Sample5 | Sample6 |
 |----------------------------|---------|---------|---------|---------|---------|---------|
@@ -34,13 +34,13 @@ A) #### Have input RawCountFile_rsemgenes.txt available in test folder.
 | ENSG00000005955.13_ACTN2    | 500     | 530     | 460     | 550     | 540     | 570     |
 | ENSG00000006062.15_RPS6     | 600     | 650     | 580     | 700     | 680     | 720     |
 
-B) #### Modify the contrasts.txt file in config folder. 
+2) #### Modify the contrasts.txt file in config folder. 
 Add sample condition contrast pairs. 
 Example: 
 | parent | control |
 |--------|---------|
 
-C) #### Modify the sampleinfo.txt file in config folder.
+3) #### Modify the sampleinfo.txt file in config folder.
 Add sample details keeping the same format such as:
 | samplename | condition | batch |
 |------------|-----------|-------|
@@ -51,7 +51,7 @@ Add sample details keeping the same format such as:
 | Sample5    | control   | b2    |
 | Sample6    | control   | b2    |
 
-D) #### In config.yaml:
+4) #### In config.yaml:
 Give full path to raw_counts data 
 
 Give full path to results directory 
@@ -64,15 +64,15 @@ Select the organism_db accordingly. For example: "org.Mm.eg.db" for mouse
 
 Select the kegg_organism. For example: "mmu" for mouse
 
-E) #### In Snakefile:
+5) #### In Snakefile:
 Give full path to configfile 
 
 Give full path to Snakemake rule files 
 
-F) #### In the common.smk: 
+6) #### In the common.smk: 
 Give full path to configfile
 
-G) #### Ensure full paths to the Rscripts in snakemake (.smk) files under 'shell' or "params' for the following:
+7) #### Ensure full paths to the Rscripts in snakemake (.smk) files under 'shell' or "params' for the following:
 deseq2.smk
 
 pathway.smk
@@ -85,7 +85,7 @@ rmarkdown.smk
 
 limma_voom.smk
 
-H) #### Ensure full path to R libraries as .libPaths in pathway.R
+8) #### Ensure full path to R libraries as .libPaths in pathway.R
 
 ### Step 3: Load the snakemake version 8 or above 
 
