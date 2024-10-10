@@ -1,0 +1,74 @@
+/* Style for the main heading with a light blue box */
+h1 {
+    background-color: #e6f2ff;  /* Light blue background */
+    padding: 10px;  /* Add padding around the text */
+    border-radius: 5px;  /* Rounded corners */
+    color: navy;  /* Main heading in navy blue */
+    font-weight: bold;
+    margin-bottom: 20px;  /* Add some space below the box */
+}
+/* Style for Main Report Heading */
+.report-title-box {
+  background-color: #e1ecff;
+  padding: 15px;
+  border-radius: 5px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Style for Team and Date Box */
+.team-date-box {
+  background-color: #e1ecff; /* Light blue background */
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Style for the team and date box */
+.team-date-box {
+    background-color: #f7f7f7;  /* Light grey background for the box */
+    border: 2px solid #e6f2ff;  /* Light blue border */
+    padding: 10px;  /* Add padding around the text */
+    border-radius: 5px;  /* Rounded corners */
+    margin-bottom: 20px;  /* Add some space below the box */
+    font-weight: bold;  /* Bold text */
+    color: #FF7F00;  /* Darker orange for better visibility */
+}
+
+/* Style for the sub-heading */
+h2 {
+    color: navy; /* Main section headings in navy blue */
+    font-weight: bold; /* Keep bold for visibility */
+}
+
+/* Styling for details summary (expandable sections) */
+details summary {
+    font-size: 16px;  /* Decrease font size slightly */
+    font-weight: normal;  /* Make the tab set headings normal, not bold */
+    color: black; /* Set the text color to black */
+    border: none;      /* Remove border */
+    padding: 5px 0;    /* Add some padding */
+    cursor: pointer;   /* Change cursor on hover */
+}
+
+details summary:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+
+/* Remove background color from details summary */
+details summary::-webkit-details-marker {
+    display: none; /* Hide the default marker */
+}
+
+/* Style the expand/collapse triangle */
+details[open] summary::before {
+    content: "▼ "; /* Down arrow for expanded state */
+}
+
+details summary::before {
+    content: "► "; /* Right arrow for collapsed state */
+    color: black; /* Set the arrow color to black */
+}
+

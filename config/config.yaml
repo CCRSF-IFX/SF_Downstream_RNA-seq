@@ -1,0 +1,11 @@
+#Give full paths to the following:
+config_path: "SF_Downstream_RNA-seq/config/config.yaml" 
+raw_counts: "SF_Downstream_RNA-seq/test/RawCountFile_rsemgenes.txt"
+coldata: "/SF_Downstream_RNA-seq/config/sampleinfo.txt"
+results: "/SF_Downstream_RNA-seq/results"
+contrasts: "/SF_Downstream_RNA-seq/config/contrasts.txt"
+genome: "human"  # Options: "mouse", "monkey", or "human"
+organism_db: "org.Hs.eg.db"  # Options: "org.Mm.eg.db" for mouse, "org.Mmu.eg.db" for monkey, or "org.Hs.eg.db" for human
+kegg_organism: "hsa"  # Options: "mmu" for mouse, "mcc" for monkey, or "hsa" for human
+pathway_id: "hsa04130"  # Update to match the organism, e.g., "mmu04130" for mouse, "mcc04130" for monkey, or "hsa04130" for human
+

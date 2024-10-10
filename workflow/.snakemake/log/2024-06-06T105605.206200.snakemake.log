@@ -1,0 +1,4 @@
+KeyError in file /mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/workflow/rules/multiqc.smk, line 6:
+'conditions'
+  File "/mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/workflow/Snakefile", line 6, in <module>
+  File "/mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/workflow/rules/multiqc.smk", line 6, in <module>

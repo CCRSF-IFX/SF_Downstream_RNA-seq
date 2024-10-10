@@ -1,0 +1,39 @@
+name: multiqc
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - multiqc=1.12
+custom_data:
+  config:
+    custom_content:
+      reports:
+        hist:
+          pattern: '*HistDesq2normFilter_mqc.png'
+        ma_plots:
+          pattern: '*MAplot_*_mqc.png'
+        heatmaps:
+          pattern: '*heatmap_*_mqc.png'
+        edger_hist:
+          pattern: '*HistEdgeRnormFilter_mqc.png'
+        edger_heatmaps:
+          pattern: '*edgeR_heatmaps_samplebysample_mqc.png'
+        edger_pca:
+          pattern: '*edgeR_pca_mqc.png'
+        edger_prcomp:
+          pattern: '*edgeR_prcomp_mqc.png'
+        edger_smearplots:
+          pattern: '*Smearplot_*_mqc.png'
+        limma_voom_ma_plots:
+          pattern: '*MAplot_limma_voom_mqc.png'
+        limma_voom_heatmaps:
+          pattern: '*heatmap_limma_voom_mqc.png'
+custom_config:
+  search_patterns:
+    files:
+      size_limit: 2G  # Adjust this size limit as needed
+  sp:
+    pattern: "*"
+  sample_name_clean:
+    - filename: true
+

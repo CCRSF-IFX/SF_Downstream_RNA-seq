@@ -1,0 +1,636 @@
+---
+title: "RNA-Seq Downstream Analysis Report"
+author: '<div class="team-date-box"><p>CCRSF-IFX Team</p></div>'
+date: '<div class="team-date-box"><p>`r Sys.Date()`</p></div>'
+output: 
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_float: true
+    df_print: paged
+    css: styles.css
+params:
+  config_path: NULL
+runtime: shiny
+---
+```{r setup, include=FALSE}
+# Load necessary libraries
+library(yaml)
+library(DT)
+library(knitr)
+library(ggplot2)
+library(plotly)
+library(png)
+library(grid)
+library(shiny)
+
+# Use the parameter for the configuration path, default to "../../config/config.yaml" if NULL
+config_path <- if (!is.null(params$config_path)) {
+  params$config_path
+} else {
+  "../../config/config.yaml"
+}
+
+# Read the configuration file using the path from params
+cat("Loading configuration from:", config_path, "\n")
+config <- yaml::read_yaml(config_path)
+
+results_dir <- config$results
+cat("Results directory:", results_dir, "\n")
+
+# Function to check if a file is a valid PNG
+is_valid_png <- function(file_path) {
+  if (!file.exists(file_path)) {
+    return(FALSE)
+  }
+  con <- file(file_path, "rb")
+  magic_number <- readBin(con, "raw", n = 8)
+  close(con)
+  identical(magic_number, as.raw(c(0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)))
+}
+## Library Distribution
+
+```{r library_distribution, echo=FALSE, results='asis'}
+cat("## Library Distribution\n")
+
+# Library Distribution Plot
+cat("<details><summary>Click to expand Library Distribution Plot</summary>\n")
+libdistrib_file <- file.path(results_dir, "libdistrib_mqc.png")
+
+if (is_valid_png(libdistrib_file)) {
+  shiny::tabsetPanel(
+    shiny::tabPanel(
+      title = "Library Distribution",
+      div(
+        img(src = libdistrib_file, width = "100%"),
+        p("Plot: libdistrib_mqc.png")
+      )
+    )
+  )
+} else {
+  cat("Library distribution plot file not found or is not a valid PNG format.\n")
+}
+cat("</details>\n\n")
+
+## DESeq2 Analysis Results
+
+```{r deseq2_analysis, echo=FALSE, results='asis'}
+cat("## DESeq2 Analysis Results\n")
+# DESeq2 Normalized Histogram
+cat("<details><summary>Click to expand DESeq2 Normalized Histogram</summary>\n")
+hist_file <- file.path(results_dir, "HistDesq2normFilter_mqc.png")
+
+if (is_valid_png(hist_file)) {
+  shiny::tabsetPanel(
+    shiny::tabPanel(
+      title = "Normalized Histogram",
+      div(
+        img(src = hist_file, width = "100%"),
+        p("Plot: HistDesq2normFilter_mqc.png")
+      )
+    )
+  )
+} else {
+  cat("DESeq2 normalized histogram plot file not found or is not a valid PNG format.\n")
+}
+cat("</details>\n\n")
+# DESeq2 MA Plots (Exclude those with "limma" in the name)
+cat("<details><summary>Click to expand DESeq2 MA Plots</summary>\n")
+ma_files <- list.files(results_dir, pattern = "MAplot_.*_mqc\\.png$")
+ma_files <- ma_files[!grepl("limma", ma_files)]  # Exclude files containing "limma"
+
+if (length(ma_files) > 0) {
+  # Create a list to store tabPanel objects
+  tab_panels <- list()
+  
+  for (i in seq_along(ma_files)) {
+    file_path <- file.path(results_dir, ma_files[i])
+    if (is_valid_png(file_path)) {
+      # Append valid tabPanel to the list
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("MA Plot", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", ma_files[i]))
+        )
+      )
+    }
+  }
+  
+  # Only create the tabsetPanel if there are valid panels
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "DESeq2MAPlots", tab_panels))
+  } else {
+    cat("No valid DESeq2 MA plot files found.\n")
+  }
+} else {
+  cat("No DESeq2 MA plot files found.\n")
+}
+cat("</details>\n\n")
+
+# DESeq2 Heatmaps (Exclude those with "limma" in the name)
+cat("<details><summary>Click to expand DESeq2 Heatmaps</summary>\n")
+heatmap_files <- list.files(results_dir, pattern = "heatmap_.*_mqc\\.png$")
+heatmap_files <- heatmap_files[!grepl("limma", heatmap_files)]  # Exclude files containing "limma"
+
+if (length(heatmap_files) > 0) {
+  # Create a list to store tabPanel objects
+  tab_panels <- list()
+  
+  for (i in seq_along(heatmap_files)) {
+    file_path <- file.path(results_dir, heatmap_files[i])
+    if (is_valid_png(file_path)) {
+      # Append valid tabPanel to the list
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("Heatmap", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", heatmap_files[i]))
+        )
+      )
+    }
+  }
+  
+  # Only create the tabsetPanel if there are valid panels
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "DESeq2Heatmaps", tab_panels))
+  } else {
+    cat("No valid DESeq2 heatmap files found.\n")
+  }
+} else {
+  cat("No DESeq2 heatmap files found.\n")
+}
+cat("</details>\n\n")
+## EdgeR Analysis Results
+
+```{r edger_analysis, echo=FALSE, results='asis'}
+cat("## EdgeR Analysis Results\n")
+# EdgeR Normalized Histogram
+cat("<details><summary>Click to expand EdgeR Normalized Histogram</summary>\n")
+hist_file <- file.path(results_dir, "HistEdgeRnormFilter_mqc.png")
+
+if (is_valid_png(hist_file)) {
+  shiny::tabsetPanel(
+    shiny::tabPanel(
+      title = "Normalized Histogram",
+      div(
+        img(src = hist_file, width = "100%"),
+        p("Plot: HistEdgeRnormFilter_mqc.png")
+      )
+    )
+  )
+} else {
+  cat("EdgeR normalized histogram plot file not found or is not a valid PNG format.\n")
+}
+cat("</details>\n\n")
+# EdgeR MDS BCV Plot
+cat("<details><summary>Click to expand MDS BCV Plot</summary>\n")
+mds_bcv_file <- file.path(results_dir, "MDS_bcv_mqc.png")
+
+if (is_valid_png(mds_bcv_file)) {
+  shiny::tabsetPanel(
+    shiny::tabPanel(
+      title = "MDS BCV Plot",
+      div(
+        img(src = mds_bcv_file, width = "100%"),
+        p("Plot: MDS_bcv_mqc.png")
+      )
+    )
+  )
+} else {
+  cat("EdgeR MDS BCV plot file not found or is not a valid PNG format.\n")
+}
+cat("</details>\n\n")
+
+# EdgeR MDS logFC Plot
+cat("<details><summary>Click to expand MDS logFC Plot</summary>\n")
+mds_logfc_file <- file.path(results_dir, "MDS_logFC_mqc.png")
+
+if (is_valid_png(mds_logfc_file)) {
+  shiny::tabsetPanel(
+    shiny::tabPanel(
+      title = "MDS logFC Plot",
+      div(
+        img(src = mds_logfc_file, width = "100%"),
+        p("Plot: MDS_logFC_mqc.png")
+      )
+    )
+  )
+} else {
+  cat("EdgeR MDS logFC plot file not found or is not a valid PNG format.\n")
+}
+cat("</details>\n\n")
+
+# EdgeR BCV Plot
+cat("<details><summary>Click to expand BCV Plot</summary>\n")
+bcv_file <- file.path(results_dir, "BCVplot_mqc.png")
+
+if (is_valid_png(bcv_file)) {
+  shiny::tabsetPanel(
+    shiny::tabPanel(
+      title = "BCV Plot",
+      div(
+        img(src = bcv_file, width = "100%"),
+        p("Plot: BCVplot_mqc.png")
+      )
+    )
+  )
+} else {
+  cat("EdgeR BCV plot file not found or is not a valid PNG format.\n")
+}
+cat("</details>\n\n")
+# EdgeR Smear Plots
+cat("<details><summary>Click to expand EdgeR Smear Plots</summary>\n")
+smear_files <- list.files(results_dir, pattern = "Smearplot_.*_mqc\\.png$")
+
+if (length(smear_files) > 0) {
+  # Create a list to store tabPanel objects
+  tab_panels <- list()
+  
+  for (i in seq_along(smear_files)) {
+    file_path <- file.path(results_dir, smear_files[i])
+    if (is_valid_png(file_path)) {
+      # Append valid tabPanel to the list
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("Smear Plot", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", smear_files[i]))
+        )
+      )
+    }
+  }
+  
+  # Only create the tabsetPanel if there are valid panels
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "EdgeRSmearPlots", tab_panels))
+  } else {
+    cat("No valid EdgeR Smear plot files found.\n")
+  }
+} else {
+  cat("No EdgeR Smear plot files found.\n")
+}
+cat("</details>\n\n")
+# EdgeR Heatmaps
+cat("<details><summary>Click to expand EdgeR Heatmaps</summary>\n")
+heatmap_files <- list.files(results_dir, pattern = "edgeR_heatmaps_samplebysample_mqc_.*\\.png$")
+
+if (length(heatmap_files) > 0) {
+  # Create a list to store tabPanel objects
+  tab_panels <- list()
+  
+  for (i in seq_along(heatmap_files)) {
+    file_path <- file.path(results_dir, heatmap_files[i])
+    if (is_valid_png(file_path)) {
+      # Append valid tabPanel to the list
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("Heatmap", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", heatmap_files[i]))
+        )
+      )
+    }
+  }
+  
+  # Only create the tabsetPanel if there are valid panels
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "EdgeRHeatmaps", tab_panels))
+  } else {
+    cat("No valid EdgeR heatmap files found.\n")
+  }
+} else {
+  cat("No EdgeR heatmap files found.\n")
+}
+cat("</details>\n\n")
+
+# EdgeR prcomp Plots
+cat("<details><summary>Click to expand EdgeR prcomp Plots</summary>\n")
+prcomp_files <- list.files(results_dir, pattern = "edgeR_prcomp_mqc_.*\\.png$")
+
+if (length(prcomp_files) > 0) {
+  # Create a list to store tabPanel objects
+  tab_panels <- list()
+  
+  for (i in seq_along(prcomp_files)) {
+    file_path <- file.path(results_dir, prcomp_files[i])
+    if (is_valid_png(file_path)) {
+      # Append valid tabPanel to the list
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("prcomp Plot", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", prcomp_files[i]))
+        )
+      )
+    }
+  }
+  
+  # Only create the tabsetPanel if there are valid panels
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "EdgeRPrcompPlots", tab_panels))
+  } else {
+    cat("No valid EdgeR prcomp plot files found.\n")
+  }
+} else {
+  cat("No EdgeR prcomp plot files found.\n")
+}
+cat("</details>\n\n")
+
+# EdgeR PCA Plots
+cat("<details><summary>Click to expand EdgeR PCA Plots</summary>\n")
+pca_files <- list.files(results_dir, pattern = "edgeR_pca_mqc_.*\\.png$")
+
+if (length(pca_files) > 0) {
+  # Create a list to store tabPanel objects
+  tab_panels <- list()
+  
+  for (i in seq_along(pca_files)) {
+    file_path <- file.path(results_dir, pca_files[i])
+    if (is_valid_png(file_path)) {
+      # Append valid tabPanel to the list
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("PCA Plot", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", pca_files[i]))
+        )
+      )
+    }
+  }
+  
+  # Only create the tabsetPanel if there are valid panels
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "EdgeRPCAPlots", tab_panels))
+  } else {
+    cat("No valid EdgeR PCA plot files found.\n")
+  }
+} else {
+  cat("No EdgeR PCA plot files found.\n")
+}
+cat("</details>\n\n")
+## Limma-Voom Analysis Results
+
+```{r limma_voom_analysis, echo=FALSE, results='asis'}
+cat("## Limma-Voom Analysis Results\n")
+
+# Limma-Voom MA Plots
+cat("<details><summary>Click to expand Limma-Voom MA Plots</summary>\n")
+ma_voom_files <- list.files(results_dir, pattern = "MAplot_limma_voom_.*_mqc\\.png$")
+
+if (length(ma_voom_files) > 0) {
+  # Create a list to store tabPanel objects
+  tab_panels <- list()
+  
+  for (i in seq_along(ma_voom_files)) {
+    file_path <- file.path(results_dir, ma_voom_files[i])
+    if (is_valid_png(file_path)) {
+      # Append valid tabPanel to the list
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("MA Plot", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", ma_voom_files[i]))
+        )
+      )
+    }
+  }
+  
+  # Only create the tabsetPanel if there are valid panels
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "LimmaVoomMAPlots", tab_panels))
+  } else {
+    cat("No valid Limma-Voom MA plot files found.\n")
+  }
+} else {
+  cat("No Limma-Voom MA plot files found.\n")
+}
+cat("</details>\n\n")
+
+# Limma-Voom Heatmaps
+cat("<details><summary>Click to expand Limma-Voom Heatmaps</summary>\n")
+heatmap_voom_files <- list.files(results_dir, pattern = "heatmap_limma_voom_.*_mqc\\.png$")
+
+if (length(heatmap_voom_files) > 0) {
+  # Create a list to store tabPanel objects
+  tab_panels <- list()
+  
+  for (i in seq_along(heatmap_voom_files)) {
+    file_path <- file.path(results_dir, heatmap_voom_files[i])
+    if (is_valid_png(file_path)) {
+      # Append valid tabPanel to the list
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("Heatmap", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", heatmap_voom_files[i]))
+        )
+      )
+    }
+  }
+  
+  # Only create the tabsetPanel if there are valid panels
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "LimmaVoomHeatmaps", tab_panels))
+  } else {
+    cat("No valid Limma-Voom heatmap files found.\n")
+  }
+} else {
+  cat("No Limma-Voom heatmap files found.\n")
+}
+cat("</details>\n\n")
+## Venn Diagrams
+
+```{r venn_diagrams, echo=FALSE, results='asis'}
+cat("## Venn Diagrams\n")
+
+# Venn Diagrams
+cat("<details><summary>Click to expand Venn Diagrams</summary>\n")
+venn_files <- list.files(results_dir, pattern = "venn_diagram_.*_mqc\\.png$")
+
+if (length(venn_files) > 0) {
+  # Create a list to store tabPanel objects
+  tab_panels <- list()
+  
+  for (i in seq_along(venn_files)) {
+    file_path <- file.path(results_dir, venn_files[i])
+    if (is_valid_png(file_path)) {
+      # Append valid tabPanel to the list
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("Venn Diagram", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", venn_files[i]))
+        )
+      )
+    }
+  }
+  
+  # Only create the tabsetPanel if there are valid panels
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "VennDiagrams", tab_panels))
+  } else {
+    cat("No valid Venn diagram files found.\n")
+  }
+} else {
+  cat("No Venn diagram files found.\n")
+}
+cat("</details>\n\n")
+
+## Gene Set Enrichment Analysis
+
+```{r Gene_set_Analysis, echo=FALSE, results='asis'}
+cat("## Gene Set Enrichment Analysis\n")
+
+# Dot Plots
+cat("<details><summary>Click to expand Dot Plots</summary>\n")
+dotplot_files <- list.files(results_dir, pattern = "pathway_analysis_.*_dotplot_mqc\\.png$")
+
+if (length(dotplot_files) > 0) {
+  # Create a list to store tabPanel objects
+  tab_panels <- list()
+  
+  for (i in seq_along(dotplot_files)) {
+    file_path <- file.path(results_dir, dotplot_files[i])
+    if (is_valid_png(file_path)) {
+      # Append valid tabPanel to the list
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("Dot Plot", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", dotplot_files[i]))
+        )
+      )
+    }
+  }
+  
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "DotPlots", tab_panels))
+  } else {
+    cat("No valid dot plot files found.\n")
+  }
+} else {
+  cat("No dot plot files found.\n")
+}
+cat("</details>\n\n")
+
+# Emap Plots
+cat("<details><summary>Click to expand Emap Plots</summary>\n")
+emapplot_files <- list.files(results_dir, pattern = "pathway_analysis_.*_emapplot_mqc\\.png$")
+
+if (length(emapplot_files) > 0) {
+  tab_panels <- list()
+  
+  for (i in seq_along(emapplot_files)) {
+    file_path <- file.path(results_dir, emapplot_files[i])
+    if (is_valid_png(file_path)) {
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("Emap Plot", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", emapplot_files[i]))
+        )
+      )
+    }
+  }
+  
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "EmapPlots", tab_panels))
+  } else {
+    cat("No valid emap plot files found.\n")
+  }
+} else {
+  cat("No emap plot files found.\n")
+}
+cat("</details>\n\n")
+
+# Cnet Plots
+cat("<details><summary>Click to expand Cnet Plots</summary>\n")
+cnetplot_files <- list.files(results_dir, pattern = "pathway_analysis_.*_cnetplot_mqc\\.png$")
+
+if (length(cnetplot_files) > 0) {
+  tab_panels <- list()
+  
+  for (i in seq_along(cnetplot_files)) {
+    file_path <- file.path(results_dir, cnetplot_files[i])
+    if (is_valid_png(file_path)) {
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("Cnet Plot", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", cnetplot_files[i]))
+        )
+      )
+    }
+  }
+  
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "CnetPlots", tab_panels))
+  } else {
+    cat("No valid cnet plot files found.\n")
+  }
+} else {
+  cat("No cnet plot files found.\n")
+}
+cat("</details>\n\n")
+
+# Ridge Plots
+cat("<details><summary>Click to expand Ridge Plots</summary>\n")
+ridgeplot_files <- list.files(results_dir, pattern = "pathway_analysis_.*_ridgeplot_mqc\\.png$")
+
+if (length(ridgeplot_files) > 0) {
+  tab_panels <- list()
+  
+  for (i in seq_along(ridgeplot_files)) {
+    file_path <- file.path(results_dir, ridgeplot_files[i])
+    if (is_valid_png(file_path)) {
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("Ridge Plot", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", ridgeplot_files[i]))
+        )
+      )
+    }
+  }
+  
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "RidgePlots", tab_panels))
+  } else {
+    cat("No valid ridge plot files found.\n")
+  }
+} else {
+  cat("No ridge plot files found.\n")
+}
+cat("</details>\n\n")
+
+# GSEA Plots
+cat("<details><summary>Click to expand GSEA Plots</summary>\n")
+gseaplot_files <- list.files(results_dir, pattern = "pathway_analysis_.*_gseaplot_mqc\\.png$")
+
+if (length(gseaplot_files) > 0) {
+  tab_panels <- list()
+  
+  for (i in seq_along(gseaplot_files)) {
+    file_path <- file.path(results_dir, gseaplot_files[i])
+    if (is_valid_png(file_path)) {
+      tab_panels[[i]] <- shiny::tabPanel(
+        title = paste("GSEA Plot", i),
+        div(
+          img(src = file_path, width = "100%"),
+          p(paste("Plot:", gseaplot_files[i]))
+        )
+      )
+    }
+  }
+  
+  if (length(tab_panels) > 0) {
+    do.call(shiny::tabsetPanel, c(id = "GSEAPlots", tab_panels))
+  } else {
+    cat("No valid GSEA plot files found.\n")
+  }
+} else {
+  cat("No GSEA plot files found.\n")
+}
+cat("</details>\n\n")
+

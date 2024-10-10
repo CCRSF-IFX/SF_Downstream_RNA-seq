@@ -1,0 +1,7 @@
+Building DAG of jobs...
+MissingInputException in rule multiqc in file /mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/workflow/rules/multiqc.smk, line 3:
+Missing input files for rule multiqc:
+    output: /mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/multiqc.html
+    affected files:
+        /mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/MAplot_condition1_vs_condition2.png
+        /mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/heatmap_condition1_vs_condition2.png

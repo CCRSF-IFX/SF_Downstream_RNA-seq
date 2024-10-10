@@ -1,0 +1,2 @@
+SyntaxError in file /mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/workflow/Snakefile, line 5:
+Colon expected after keyword configfile. (Snakefile, line 5)

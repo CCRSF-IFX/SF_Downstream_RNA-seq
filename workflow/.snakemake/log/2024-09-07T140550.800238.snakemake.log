@@ -1,0 +1,5 @@
+Building DAG of jobs...
+MissingInputException in rule all in file /mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/workflow/Snakefile, line 24:
+Missing input files for rule all:
+    affected files:
+        /mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/results/RNA_seq_analysis_report.html

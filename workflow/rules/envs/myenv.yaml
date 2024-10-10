@@ -1,0 +1,11 @@
+name: rna_downstream
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.9
+  - snakemake
+  - numpy
+  - biopython
+  - pandas

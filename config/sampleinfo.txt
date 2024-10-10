@@ -1,0 +1,7 @@
+samplename	condition	batch 
+Sample1		wildtype	b1
+Sample2	 	wildtype	b1
+Sample3	 	wildtype	b1
+Sample4		knockout	b1
+Sample5		knockout	b1
+Sample6		knockout	b1

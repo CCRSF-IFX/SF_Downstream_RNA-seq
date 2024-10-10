@@ -1,0 +1,4 @@
+WorkflowError in line 6 of /mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/workflow/rules/common.smk:
+Config file config/config.yaml not found.
+  File "/mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/workflow/Snakefile", line 3, in <module>
+  File "/mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/workflow/rules/common.smk", line 6, in <module>

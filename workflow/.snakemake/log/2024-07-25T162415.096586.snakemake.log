@@ -1,0 +1,3 @@
+NameError in file /mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/workflow/Snakefile, line 8:
+name 'configfile' is not defined
+  File "/mnt/ccrsf-static/Analysis/yasha/SF_Downstream_RNA-seq/workflow/Snakefile", line 8, in <module>

@@ -1,0 +1,63 @@
+import os
+
+# Load configuration. Add your full path here. 
+configfile: "/config/config.yaml"
+
+# Function to extract contrasts from the configuration file
+def get_contrasts(contrasts_file):
+    contrasts = []
+    with open(contrasts_file) as f:
+        for line in f:
+            contrasts.append("_vs_".join(line.strip().split()))
+    return contrasts
+
+# Extract contrasts and results directory from the configuration
+CONTRASTS = get_contrasts(config['contrasts'])
+RESULTS_DIR = config['results']
+
+# Include rule files for different analysis steps. Add your full path here. 
+include: "/workflow/rules/common.smk"
+include: "/workflow/rules/deseq2.smk"
+include: "/workflow/rules/create-envs.smk"
+include: "/workflow/rules/edger.smk"
+include: "/workflow/rules/limma_voom.smk"
+include: "/workflow/rules/pathway.smk"
+include: "/workflow/rules/venn.smk"
+include: "/workflow/rules/rmarkdown.smk"
+
+# Define the final output rule 'all'
+rule all:
+    input:
+        # Differential expression results
+        expand(f"{RESULTS_DIR}/DEG_{{contrast}}_filtered.txt", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/Filtered_DEG_EdgeR_{{contrast}}.txt", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/limma_voom_filtered_results_{{contrast}}.txt", contrast=CONTRASTS),
+
+        # Pathway analysis results for DESeq2
+        expand(f"{RESULTS_DIR}/pathway_analysis_deseq2_{{contrast}}_dotplot_mqc.png", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/pathway_analysis_deseq2_{{contrast}}_emapplot_mqc.png", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/pathway_analysis_deseq2_{{contrast}}_cnetplot_mqc.png", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/pathway_analysis_deseq2_{{contrast}}_ridgeplot_mqc.png", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/pathway_analysis_deseq2_{{contrast}}_gseaplot_mqc.png", contrast=CONTRASTS),
+
+        # Pathway analysis results for KEGG
+        expand(f"{RESULTS_DIR}/pathway_analysis_kegg_{{contrast}}_dotplot_mqc.png", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/pathway_analysis_kegg_{{contrast}}_emapplot_mqc.png", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/pathway_analysis_kegg_{{contrast}}_cnetplot_mqc.png", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/pathway_analysis_kegg_{{contrast}}_ridgeplot_mqc.png", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/pathway_analysis_kegg_{{contrast}}_gseaplot_mqc.png", contrast=CONTRASTS),
+
+        # Venn diagrams
+        expand(f"{RESULTS_DIR}/venn_diagram_{{contrast}}_mqc.png", contrast=CONTRASTS),
+
+        # Plots for edgeR analysis
+        expand(f"{RESULTS_DIR}/Smearplot_EdgeR_{{contrast}}_mqc.png", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/MAplot_{{contrast}}_mqc.png", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/heatmap_{{contrast}}_mqc.png", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/edgeR_pca_mqc_{{contrast}}.png", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/edgeR_prcomp_mqc_{{contrast}}.png", contrast=CONTRASTS),
+        expand(f"{RESULTS_DIR}/edgeR_heatmaps_samplebysample_mqc_{{contrast}}.png", contrast=CONTRASTS),
+
+        # RMarkdown report
+        f"{RESULTS_DIR}/RNA_seq_analysis_report.html"
+
